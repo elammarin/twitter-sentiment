@@ -1,14 +1,21 @@
 package fil.coo;
 
 import javax.swing.*;
+import javax.swing.border.LineBorder;
 
+import java.io.File;
+import java.io.FileWriter;
 import twitter4j.QueryResult;
 import twitter4j.Status;
 import twitter4j.TwitterException;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 
 
 
@@ -31,12 +38,17 @@ public class Interface extends JFrame implements Action {
     
     static JLabel a; 
     
+    public static JPanel p;
+    public static JPanel p2;
+    
     static JTextArea tw;
     
     public static Request r;
 
     public Interface()
     { 		
+    	this.p=new JPanel(); 
+    	this.p2=new JPanel(); 
     	 r= new Request();
     	 try {
 			remaining = r.getRemainingRequest();
@@ -65,8 +77,7 @@ public class Interface extends JFrame implements Action {
         // create a new button 
         b = new JButton("Rechercher"); 
         
-        tw = new JTextArea("Le résultat de votre recherche : \n \n ", 40, 80);
-        tw.setEditable(false);
+        
   
         try {
 			a = new JLabel("Requêtes restantes : "+r.getRemainingRequest());
@@ -77,17 +88,39 @@ public class Interface extends JFrame implements Action {
   
         // addActionListener to button 
         b.addActionListener(new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
+        
+
+		public void actionPerformed(ActionEvent e) {
+        	File myObj = new File("requests.csv");
         	String recherche;
+
         	recherche = t.getText();
-        	try {QueryResult tweets;
-        		tw.setText("Le résultat de votre recherche : \n \n "); 
+        	try {
+        		QueryResult tweets;
         		tweets = r.run(recherche);
         		int re = r.getRemainingRequest();
         		a.setText(("Requêtes restantes : "+re));
+        		if (!myObj.exists()) {
+        			FileWriter myWriter = new FileWriter("requests.csv");
+        	        myWriter.write("Id,User,Text,Date,Request \n");
+        	        myWriter.close();
+        	    } 
+        		else {
+        	        System.out.println("File already exists.");
+        	    }
+        		FileWriter myWriter = new FileWriter("requests.csv", true);
         		for (Status status : tweets.getTweets()) {
-        		tw.setText(tw.getText()+"@" + status.getUser().getScreenName() + ":" + status.getText()+" \n \n" );}
+        			//tw = new JTextArea("", 40, 80);
+        	        //tw.setEditable(false);
+        			Line l = new Line(status, p2);
+        			l.create();
+        			
+	        		myWriter.write("\""+status.getId()+"\","+"\""+status.getUser().getScreenName()+"\",\""+status.getText()+"\",\""+status.getCreatedAt()+"\",\""+recherche+"\"\n");
+	        		//tw.setText(tw.getText()+"@" + status.getUser().getScreenName() + ":" + status.getText()+"	"+status.getCreatedAt()+" \n \n" );
+	        		//tw.add(positiveButton);
         		}
+        		myWriter.close();
+        	}
         	catch(Exception i) {
         		i.printStackTrace();
         		
@@ -101,7 +134,7 @@ public class Interface extends JFrame implements Action {
         t = new JTextField(16); 
   
         // create a panel to add buttons and textfield 
-        JPanel p = new JPanel(); 
+        
   
         // add buttons and textfield to panel 
         
@@ -109,13 +142,18 @@ public class Interface extends JFrame implements Action {
         p.add(t); 
         p.add(b); 
         p.add(a);
-        p.add(tw, BorderLayout.WEST);
-        JScrollPane scrollPane = new JScrollPane(tw,  JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-        p.add(scrollPane, BorderLayout.CENTER);
+        //p.add(tw, BorderLayout.WEST);
+        JScrollPane scrollPane = new JScrollPane(p2,  JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+        //p2.add(scrollPane, BorderLayout.CENTER);
         
 
         // add panel to frame 
-        f.add(p); 
+       
+        f.add(p,BorderLayout.PAGE_START);
+        f.add(p2);
+        //scrollPane.setPreferredSize(new Dimension(600, 600));
+        //f.add(scrollPane);
+        
          
   
         // set the size of frame 
