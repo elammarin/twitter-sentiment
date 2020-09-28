@@ -5,6 +5,11 @@ import javax.swing.border.LineBorder;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+
 import twitter4j.QueryResult;
 import twitter4j.Status;
 import twitter4j.TwitterException;
@@ -16,6 +21,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 
 
 
@@ -33,6 +39,7 @@ public class Interface extends JFrame implements Action {
     static JFrame f; 
   
     static JButton b; 
+    static JButton b2;
   
     static JLabel l;
     
@@ -40,6 +47,7 @@ public class Interface extends JFrame implements Action {
     
     public static JPanel p;
     public static JPanel p2;
+    public static JPanel p3;
     
     static JTextArea tw;
     
@@ -49,6 +57,9 @@ public class Interface extends JFrame implements Action {
     { 		
     	this.p=new JPanel(); 
     	this.p2=new JPanel(); 
+    	p2.setLayout(new BoxLayout(p2, BoxLayout.PAGE_AXIS));
+    	this.p3=new JPanel();
+    	p3.setLayout(new BoxLayout(p3, BoxLayout.PAGE_AXIS));
     	 r= new Request();
     	 try {
 			remaining = r.getRemainingRequest();
@@ -56,11 +67,26 @@ public class Interface extends JFrame implements Action {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-    } 
+    }
+    
+    public static String nettoyage(String s, String pa) {
+
+	try{
+	   Pattern p = Pattern .compile(pa);
+	   Matcher m = p.matcher(s);
+	   while (m.find())
+	      System.out.println(s.substring(m.start(), m.end()));
+	}
+	catch(PatternSyntaxException pse){}
+		
+	return s;
+    	
+    }
   
     @SuppressWarnings("deprecation")
 	public static void main(String[] args) 
     { 
+    	
     	Interface in = new Interface();
     	
     	in.enable();
@@ -102,7 +128,7 @@ public class Interface extends JFrame implements Action {
         		a.setText(("Requêtes restantes : "+re));
         		if (!myObj.exists()) {
         			FileWriter myWriter = new FileWriter("requests.csv");
-        	        myWriter.write("Id,User,Text,Date,Request \n");
+        	        myWriter.write("Id,User,Text,Date,Request,Polarity \n");
         	        myWriter.close();
         	    } 
         		else {
@@ -115,7 +141,7 @@ public class Interface extends JFrame implements Action {
         			Line l = new Line(status, p2);
         			l.create();
         			
-	        		myWriter.write("\""+status.getId()+"\","+"\""+status.getUser().getScreenName()+"\",\""+status.getText()+"\",\""+status.getCreatedAt()+"\",\""+recherche+"\"\n");
+	        		myWriter.write("\""+status.getId()+"\","+"\""+status.getUser().getScreenName()+"\",\""+(status.getText()).replaceAll( " /(@[ a-zA-Z0-9][ : \\ . ! ] ) /", "")+"\",\""+status.getCreatedAt()+"\",\""+recherche+"\",-1 \n");
 	        		//tw.setText(tw.getText()+"@" + status.getUser().getScreenName() + ":" + status.getText()+"	"+status.getCreatedAt()+" \n \n" );
 	        		//tw.add(positiveButton);
         		}
@@ -125,9 +151,43 @@ public class Interface extends JFrame implements Action {
         		i.printStackTrace();
         		
         		}
-        	
+            p2.add(b2);
         	}
         }) ;
+        
+        b2 = new JButton("Valider"); 
+        b2.addActionListener(new ActionListener() {
+
+    		public void actionPerformed(ActionEvent e) {
+    			Component[] list = p2.getComponents();
+    			FileWriter myWriter = null;
+				try {
+					myWriter = new FileWriter("requests.csv");
+				} catch (IOException e2) {
+					e2.printStackTrace();
+				}
+    			int i=2;
+    			for (Component button : list) {
+    				if (button instanceof JRadioButton && ((JRadioButton) button).isSelected()) {
+    						try {
+								myWriter.append('c');
+							} catch (IOException e1) {
+								e1.printStackTrace();
+							}	
+    						
+    				}
+    			}
+    			try {
+					myWriter.close();
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+            	
+            	
+            	}
+            }) ;
+      
         
   
         // create a object of JTextField with 16 columns 
@@ -143,14 +203,30 @@ public class Interface extends JFrame implements Action {
         p.add(b); 
         p.add(a);
         //p.add(tw, BorderLayout.WEST);
-        JScrollPane scrollPane = new JScrollPane(p2,  JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-        //p2.add(scrollPane, BorderLayout.CENTER);
         
+        //JScrollBar s=new JScrollBar();  
+        //s.setBounds(100,100, 50,100);  
 
         // add panel to frame 
-       
-        f.add(p,BorderLayout.PAGE_START);
-        f.add(p2);
+        //p3.setLayout(new GridLayout(-1, 1));
+        //p3.setBackground(Color.LIGHT_GRAY);
+        //p3.setPreferredSize(new Dimension(1200, 700));
+        p3.add(p);
+        p3.add(p2);
+        //p3.add(scrollPane);
+        JScrollPane scrollPane = new JScrollPane(p3,  JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+        
+        JPanel contentPane = new JPanel(new BorderLayout());
+        contentPane.setPreferredSize(new Dimension(950, 800));
+        contentPane.add(scrollPane);
+        
+        //contentPane.add(p2);
+        
+        f.add(contentPane);
+        //f.add(p3);
+        //f.add(s);
+        
         //scrollPane.setPreferredSize(new Dimension(600, 600));
         //f.add(scrollPane);
         
