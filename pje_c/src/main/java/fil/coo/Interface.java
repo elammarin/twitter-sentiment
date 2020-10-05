@@ -1,27 +1,35 @@
 package fil.coo;
 
-import javax.swing.*;
-import javax.swing.border.LineBorder;
-
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
-
-import twitter4j.QueryResult;
-import twitter4j.Status;
-import twitter4j.TwitterException;
-
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.Scanner;
+
+import javax.swing.AbstractButton;
+import javax.swing.Action;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+
+
+import twitter4j.QueryResult;
+import twitter4j.Status;
+import twitter4j.TwitterException;
+
 
 
 
@@ -31,6 +39,9 @@ public class Interface extends JFrame implements Action {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	
+	private static QueryResult tweets;
+	//private static String recherche;
 
 	public int remaining;
 	
@@ -69,17 +80,9 @@ public class Interface extends JFrame implements Action {
 		}
     }
     
-    public static String nettoyage(String s, String pa) {
-
-	try{
-	   Pattern p = Pattern .compile(pa);
-	   Matcher m = p.matcher(s);
-	   while (m.find())
-	      System.out.println(s.substring(m.start(), m.end()));
-	}
-	catch(PatternSyntaxException pse){}
-		
-	return s;
+    public static String nettoyage(String s) {
+    	
+    return s.replaceAll("(@[^\\s]+)|(#([^\\s]+))|((www\\.[^\\s]+)|(https?://[^\\s]+))|(\")|(RT)", "");
     	
     }
   
@@ -120,9 +123,11 @@ public class Interface extends JFrame implements Action {
         	File myObj = new File("requests.csv");
         	String recherche;
 
-        	recherche = t.getText();
+        	recherche = t.getText()+" lang:fr";
         	try {
-        		QueryResult tweets;
+        		p2.removeAll();
+        		//QueryResult tweets;
+        		
         		tweets = r.run(recherche);
         		int re = r.getRemainingRequest();
         		a.setText(("Requêtes restantes : "+re));
@@ -140,9 +145,7 @@ public class Interface extends JFrame implements Action {
         	        //tw.setEditable(false);
         			Line l = new Line(status, p2);
         			l.create();
-        			
-	        		myWriter.write("\""+status.getId()+"\","+"\""+status.getUser().getScreenName()+"\",\""+(status.getText()).replaceAll( " /(@[ a-zA-Z0-9][ : \\ . ! ] ) /", "")+"\",\""+status.getCreatedAt()+"\",\""+recherche+"\",-1 \n");
-	        		//tw.setText(tw.getText()+"@" + status.getUser().getScreenName() + ":" + status.getText()+"	"+status.getCreatedAt()+" \n \n" );
+        			//tw.setText(tw.getText()+"@" + status.getUser().getScreenName() + ":" + status.getText()+"	"+status.getCreatedAt()+" \n \n" );
 	        		//tw.add(positiveButton);
         		}
         		myWriter.close();
@@ -160,23 +163,57 @@ public class Interface extends JFrame implements Action {
 
     		public void actionPerformed(ActionEvent e) {
     			Component[] list = p2.getComponents();
+    			LinkedList<Integer> val = new LinkedList<Integer>();
+    			String research;
+
+            	research = t.getText();
     			FileWriter myWriter = null;
 				try {
-					myWriter = new FileWriter("requests.csv");
+					myWriter = new FileWriter("requests.csv", true);
 				} catch (IOException e2) {
 					e2.printStackTrace();
 				}
-    			int i=2;
+				
     			for (Component button : list) {
     				if (button instanceof JRadioButton && ((JRadioButton) button).isSelected()) {
+    					AbstractButton b = (AbstractButton) button;
     						try {
-								myWriter.append('c');
-							} catch (IOException e1) {
+								switch (b.getText()) {
+								case "Neutre" : val.add(2);
+									break;
+								case "Négatif" : val.add(0);
+									break;
+								case "Positif" : val.add(4);
+									break;
+								default : val.add(-1);
+								 	break;
+    							}
+							} catch (Exception e1) {
 								e1.printStackTrace();
 							}	
     						
     				}
     			}
+    			System.out.println(Arrays.toString(val.toArray()));
+
+    			int index = 0;
+    			for (Status status : tweets.getTweets()) {
+    				boolean dupli = true;
+					try {
+						dupli = dupli( status.getId() );
+					} catch (FileNotFoundException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+        			if (!dupli) {
+						try {
+							myWriter.write("\""+status.getId()+"\","+"\""+status.getUser().getScreenName()+"\",\""+nettoyage(status.getText())+"\",\""+status.getCreatedAt()+"\",\""+research+"\","+val.get(index)+" \n");
+						} catch (IOException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}}
+        			index++;
+    				}
     			try {
 					myWriter.close();
 				} catch (IOException e1) {
@@ -238,6 +275,19 @@ public class Interface extends JFrame implements Action {
         f.show(); 
     }
     
+
+	protected static boolean dupli(long id) throws FileNotFoundException {
+		String i = Long.toString(id);
+		File myObj = new File("requests.csv");
+	    @SuppressWarnings("resource")
+		Scanner myReader = new Scanner(myObj);
+	    while (myReader.hasNextLine()) {
+	    	if (myReader.nextLine().contains(i)) {
+	    		return true;
+	    	}
+	    }
+		return false;
+	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {

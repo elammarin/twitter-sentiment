@@ -43,6 +43,7 @@ public class Request {
 	public QueryResult run(String rqst) throws Exception {
 		Twitter twitter = this.getTwitterInstance();
 		Query query = new Query(rqst);
+		query.setCount(100);
 	    QueryResult result;
 	    result = twitter.search(query);
 	    //for (Status status : result.getTweets()) {
