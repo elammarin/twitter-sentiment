@@ -1,4 +1,4 @@
-package fil.coo;
+package pje;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -87,8 +87,7 @@ public class Interface extends JFrame implements Action {
     }
   
     @SuppressWarnings("deprecation")
-	public static void main(String[] args) 
-    { 
+	public static void main(String[] args) { 
     	
     	Interface in = new Interface();
     	
