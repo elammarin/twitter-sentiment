@@ -1,6 +1,7 @@
 package pje;
 
 import java.awt.BorderLayout;
+
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -30,6 +31,7 @@ import twitter4j.QueryResult;
 import twitter4j.Status;
 import twitter4j.TwitterException;
 
+import pje.Classification;
 
 
 
@@ -51,6 +53,7 @@ public class Interface extends JFrame implements Action {
   
     static JButton b; 
     static JButton b2;
+    static JButton b3;
   
     static JLabel l;
     
@@ -82,7 +85,7 @@ public class Interface extends JFrame implements Action {
     
     public static String nettoyage(String s) {
     	
-    return s.replaceAll("(@[^\\s]+)|(#([^\\s]+))|((www\\.[^\\s]+)|(https?://[^\\s]+))|(\")|(RT)", "");
+    return s.replaceAll("(@[^\\s]+)|(#([^\\s]+))|((www\\.[^\\s]+)|(https?://[^\\s]+))|(\")|(RT)|([\n\r]+)", " ");
     	
     }
   
@@ -105,6 +108,8 @@ public class Interface extends JFrame implements Action {
         // create a new button 
         b = new JButton("Rechercher"); 
         
+        b3 = new JButton("KnnEvaluation");
+        
         
   
         try {
@@ -122,7 +127,7 @@ public class Interface extends JFrame implements Action {
         	File myObj = new File("requests.csv");
         	String recherche;
 
-        	recherche = t.getText()+" lang:fr";
+        	recherche = t.getText()+" lang:fr"+" -filter:retweets";
         	try {
         		p2.removeAll();
         		//QueryResult tweets;
@@ -154,6 +159,7 @@ public class Interface extends JFrame implements Action {
         		
         		}
             p2.add(b2);
+            p2.add(b3);
         	}
         }) ;
         
@@ -224,7 +230,28 @@ public class Interface extends JFrame implements Action {
             	}
             }) ;
       
-        
+        b3 = new JButton("knnEvaluation");
+        b3.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent e) {
+        		File myObj = new File("knnClassification.csv");
+        		try{if (!myObj.exists()) {
+        			FileWriter myWriter = new FileWriter("knnClassification.csv");
+        	        myWriter.write("Id,User,Text,Date,Request,Polarity \n");
+        	        myWriter.close();
+        	    } 
+        		FileWriter myWriter = new FileWriter("knnClassification.csv", true);
+        		for (Status status : tweets.getTweets()) {
+        			String tweetToEvaluate = nettoyage(status.getText());
+        			Classification c = new Classification();
+        			int polarite = c.knn(tweetToEvaluate, "requests.csv", 6);
+					myWriter.write("\""+status.getId()+"\","+"\""+status.getUser().getScreenName()+"\",\""+tweetToEvaluate+"\",\""+status.getCreatedAt()+"\",\""+t.getText()+"\","+polarite+" \n");
+        	}
+        		myWriter.close();}
+        		catch(Exception a) {
+        		a.printStackTrace();	
+        		}
+        		}
+        });
   
         // create a object of JTextField with 16 columns 
         t = new JTextField(16); 

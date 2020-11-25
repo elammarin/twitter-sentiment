@@ -3,7 +3,6 @@ package pje;
 import java.io.*;
 import java.util.*;
 
-import pje.utils.*;
 
 public class Classification {
 
@@ -30,7 +29,102 @@ public class Classification {
                 result[2] = mots2.length;
                 return result;
         }
-	
+	/*
+	public int knn(String tweet, TweetSet base ,int nb_voisins) throws IOException {
+		int nb = nb_voisins;
+		List< Tweet > tweets = new ArrayList< Tweet >( base.tweets() );
+		DTCouple[] voisins = new DTCouple[ nb ];
+		int maxIndex = 0;
+
+		for ( int i = 0; i < nb; i++ ) {
+			Tweet msg = tweets.get( i );
+			voisins[ i ] = new DTCouple( this.distance( tweet, msg.getMsg() ), msg );
+			if ( voisins[ i ].getDistance() > voisins[ maxIndex ].getDistance() ) {
+				maxIndex = i;
+			}
+		}
+
+		for ( int i = nb; i < tweets.size(); i++ ) {
+			Tweet msg = tweets.get( i );
+			float distance = this.distance( tweet, msg.getMsg() );
+
+			if ( distance < voisins[ maxIndex ].getDistance() ) {
+				voisins[ maxIndex ] = new DTCouple( distance, msg );
+
+				// Search the new maxIndex
+				for ( int k = 0; k < voisins.length; k++ ) {
+					if ( voisins[ k ].getDistance() > voisins[ maxIndex ].getDistance() ) {
+						maxIndex = k;
+					}
+				}
+			}
+		}
+
+		int cptPositive = 0;
+		int cptNegative = 0;
+		int cptNeutral = 0;
+
+		for ( int i = 0; i < nb; i++ ) {
+			int feeling = voisins[ i ].getTweet().getFeeling();
+
+			if ( feeling == 4 ) {
+				cptPositive++;
+			} else if ( feeling == 0 ) {
+				cptNegative++;
+			} else {
+				cptNeutral++;
+			}
+		}
+
+		if ( ( cptNeutral >= cptPositive ) && ( cptNeutral >= cptNegative ) ) {
+			return 2;
+		} else if ( cptPositive > cptNegative ) {
+			return 4;
+		} else {
+			return 0;
+		}
+
+	}
+        
+        public int knn(String tweet, String base ,int nb_voisins) throws IOException {
+    		//File tweets = new File("requests.csv");
+    		FileReader myReader = new FileReader(base);
+    		BufferedReader reader = new BufferedReader(myReader);
+    		List<String> voisins = new ArrayList<String>(); 
+    		List<String> proches_voisins = new ArrayList<String>(); 
+    		String thisLine = null;
+    		String line = null;
+    		int cpt = -1;
+    		reader.readLine();
+    		while((line = reader.readLine()) != null) {
+    			voisins.add(line);
+    			cpt++;
+    		}
+    		List<Float> distances = new ArrayList<Float>(); 
+    		for(int i=0;i<nb_voisins;i++) {
+    			if((thisLine = reader.readLine()) != null) {
+    				proches_voisins.add(i,thisLine);
+    				distances.add(distance(tweet,proches_voisins.get(i).split(",")[2]));
+    			}
+    		}
+    		
+    		for (int i=nb_voisins+1; i<cpt;i++) {
+        		System.out.println(voisins.get(i));
+    			float d = distance(tweet,(voisins.get(i).split(","))[2]);
+    			//boolean condition = distances.stream().anyMatch( num ->  d < num);
+    			for(String tw : proches_voisins) {
+    				if (d<distance(tweet,tw.split(",")[2])) {
+    					proches_voisins.add(voisins.get(i));
+    					proches_voisins.remove(tw);
+    					voisins.remove(voisins.get(i));
+    					voisins.add(tw);
+    				}
+    			}
+    		}
+    		reader.close();
+    		
+    		return vote(proches_voisins);
+    	}*/
         
         public int knn(String tweet, String base ,int nb_voisins) throws IOException {
     		//File tweets = new File("requests.csv");
@@ -120,7 +214,30 @@ public class Classification {
 		}
 	}
 	
-	
+	/*
+	// Class representing a couple : ( Distance, Tweet )
+		private class DTCouple {
+
+			private float distance;
+
+			private Tweet tweet;
+
+			public DTCouple ( float distance, Tweet tweet ) {
+				this.distance = distance;
+				this.tweet = tweet;
+			}
+
+			public float getDistance () {
+				return this.distance;
+			}
+
+			public Tweet getTweet () {
+				return this.tweet;
+			}
+
+		}
+
+*/
 	private class CoupleTweetDistance{
 		private String t;
 		private float d;
