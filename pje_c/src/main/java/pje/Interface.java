@@ -6,8 +6,10 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Arrays;
@@ -33,6 +35,7 @@ import twitter4j.TwitterException;
 
 import pje.Classification;
 
+import pje.Bayes;
 
 
 
@@ -54,6 +57,8 @@ public class Interface extends JFrame implements Action {
     static JButton b; 
     static JButton b2;
     static JButton b3;
+    static JButton b4;
+    static JButton b5;
   
     static JLabel l;
     
@@ -84,8 +89,8 @@ public class Interface extends JFrame implements Action {
     }
     
     public static String nettoyage(String s) {
-    	
-    return s.replaceAll("(@[^\\s]+)|(#([^\\s]+))|((www\\.[^\\s]+)|(https?://[^\\s]+))|(\")|(RT)|([\n\r]+)", " ");
+    s = s.replaceAll("([\\n\\r]+)", " ");
+    return s.replaceAll("(@[^\\s]+)|(#([^\\s]+))|((www\\.[^\\s]+)|(https?://[^\\s]+))|(\")|(\\p{Punct})", "");
     	
     }
   
@@ -109,6 +114,10 @@ public class Interface extends JFrame implements Action {
         b = new JButton("Rechercher"); 
         
         b3 = new JButton("KnnEvaluation");
+        
+        b4 = new JButton("BayesEvaluation");
+        
+        b5 = new JButton("BayesFrequencyEvaluation");
         
         
   
@@ -160,6 +169,8 @@ public class Interface extends JFrame implements Action {
         		}
             p2.add(b2);
             p2.add(b3);
+            p2.add(b4);
+            p2.add(b5);
         	}
         }) ;
         
@@ -243,8 +254,58 @@ public class Interface extends JFrame implements Action {
         		for (Status status : tweets.getTweets()) {
         			String tweetToEvaluate = nettoyage(status.getText());
         			Classification c = new Classification();
-        			int polarite = c.knn(tweetToEvaluate, "requests.csv", 6);
+        			int polarite = c.knn(tweetToEvaluate, "requests.csv", 10);
 					myWriter.write("\""+status.getId()+"\","+"\""+status.getUser().getScreenName()+"\",\""+tweetToEvaluate+"\",\""+status.getCreatedAt()+"\",\""+t.getText()+"\","+polarite+" \n");
+        	}
+        		myWriter.close();}
+        		catch(Exception a) {
+        		a.printStackTrace();	
+        		}
+        		}
+        });
+        
+        b4 = new JButton("BayesEvaluation");
+        b4.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent e) {
+        		Bayes b = new Bayes("requests.csv");
+    			
+        		File myObj = new File("BayesClassification.csv");
+        		try{if (!myObj.exists()) {
+        			FileWriter myWriter = new FileWriter("BayesClassification.csv");
+        	        myWriter.write("Id,User,Text,Date,Request,Polarity \n");
+        	        myWriter.close();
+        	    } 
+        		FileWriter myWriter = new FileWriter("BayesClassification.csv", true);
+        		for (Status status : tweets.getTweets()) {
+        			String tweetToEvaluate = nettoyage(status.getText());
+        			float polarite = b.result(tweetToEvaluate);
+        			int pol = Math.round(polarite);
+					myWriter.write("\""+String.valueOf(status.getId()).replaceAll(",", ".")+"\","+"\""+status.getUser().getScreenName()+"\",\""+tweetToEvaluate+"\",\""+status.getCreatedAt()+"\",\""+t.getText()+"\","+pol+" \n");
+        	}
+        		myWriter.close();}
+        		catch(Exception a) {
+        		a.printStackTrace();	
+        		}
+        		}
+        });
+        
+        b5 = new JButton("BayesEvaluationParFrequence");
+        b5.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent e) {
+        		Bayes b = new Bayes("requests.csv");
+    			
+        		File myObj = new File("BayesFrequenceClassification.csv");
+        		try{if (!myObj.exists()) {
+        			FileWriter myWriter = new FileWriter("BayesFrequenceClassification.csv");
+        	        myWriter.write("Id,User,Text,Date,Request,Polarity \n");
+        	        myWriter.close();
+        	    } 
+        		FileWriter myWriter = new FileWriter("BayesFrequenceClassification.csv", true);
+        		for (Status status : tweets.getTweets()) {
+        			String tweetToEvaluate = nettoyage(status.getText());
+        			float polarite = b.resultByFrequency(tweetToEvaluate);
+        			int pol = Math.round(polarite);
+					myWriter.write("\""+String.valueOf(status.getId()).replaceAll(",", ".")+"\","+"\""+status.getUser().getScreenName()+"\",\""+tweetToEvaluate+"\",\""+status.getCreatedAt()+"\",\""+t.getText()+"\","+pol+" \n");
         	}
         		myWriter.close();}
         		catch(Exception a) {
