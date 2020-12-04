@@ -4,9 +4,11 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class Bayes {
@@ -51,6 +53,32 @@ public class Bayes {
 		return cpt;
 	}
 	
+	public int nbOfOccurencesBigramme(String mot, int classe) throws IOException {
+		FileReader myReader = new FileReader(file);
+		BufferedReader reader = new BufferedReader(myReader);
+		String line;
+		int cpt = 0;
+		reader.readLine();
+		while((line = reader.readLine()) != null) {
+			if (classe == this.getClass(line)) {
+				String tweet = getTweet(line);
+				String[] words = tweet.split(" ");
+				Object[] mots = this.toBigramme(words);
+				//System.out.print(Arrays.asList(words));
+				//System.out.print(words.length);
+				for(int i = 0; i<mots.length;i++) {
+					String m = (String) mots[i];
+					if (m.compareToIgnoreCase(mot)==0) {
+						cpt++;
+					}
+				}
+			}
+		}
+		reader.close();
+		//System.out.print(cpt);
+		return cpt;
+	}
+
 	public int nbOfWords(int classe) throws IOException {
 		FileReader myReader = new FileReader(file);
 		BufferedReader reader = new BufferedReader(myReader);
@@ -89,13 +117,61 @@ public class Bayes {
 		return (float) (nmc+1)/(nc+all);
 	}
 	
+	public float probaBigramme(String mot, int classe) throws IOException {
+		int nc = this.nbOfWords(classe); 
+		int nmc = this.nbOfOccurencesBigramme(mot, classe);
+		int all = this.allWords();
+		//System.out.print(nmc+" "+nc+" "+all+ " ");
+		return (float) (nmc+1)/(nc+all);
+	}
 	
 	public float probaTweet(String tweet, int classe) throws IOException {
 		float cpt=1;
-		float pc = this.probaClasse(classe);
+		//float pc = this.probaClasse(classe);
 		String[] mots = tweet.split(" ");
+		List<String> dejaUtilise = new ArrayList<String>(); 
 		for(int i = 0;i<mots.length;i++) {
+			if (!dejaUtilise.contains(mots[i]) && mots[i].length()>2) {
 			cpt=cpt*this.probaMot(mots[i], classe);
+			dejaUtilise.add(mots[i]);
+			}
+		}
+		float pclasse = this.probaClasse(classe);
+		return (float) cpt*pclasse;
+	}
+	
+	public float probaTweetBigramme(String tweet, int classe) throws IOException {
+		float cpt=1;
+		Object[] mots = this.toBigramme((tweet.split(" ")));
+		List<String> dejaUtilise = new ArrayList<String>(); 
+		for(int i = 0;i<mots.length;i++) {
+			String m = (String) mots[i];
+			if (!dejaUtilise.contains(m) && m.length()>2) {
+			cpt=cpt*this.probaBigramme(m, classe);
+			dejaUtilise.add(m);
+			}
+		}
+		float pclasse = this.probaClasse(classe);
+		return (float) cpt*pclasse;
+	}
+	
+	public float probaTweetMotAndBigramme(String tweet, int classe) throws IOException {
+		float cpt=1;
+		String[] words = tweet.split(" ");
+		List<String> dejaUtilise = new ArrayList<String>(); 
+		for(int i = 0;i<words.length;i++) {
+			if (!dejaUtilise.contains(words[i]) && words[i].length()>2) {
+			cpt=cpt*this.probaMot(words[i], classe);
+			dejaUtilise.add(words[i]);
+			}
+		}
+		Object[] mots = this.toBigramme((tweet.split(" "))); 
+		for(int i = 0;i<mots.length;i++) {
+			String m = (String) mots[i];
+			if (!dejaUtilise.contains(m) && m.length()>2) {
+			cpt=cpt*this.probaBigramme(m, classe);
+			dejaUtilise.add(m);
+			}
 		}
 		float pclasse = this.probaClasse(classe);
 		return (float) cpt*pclasse;
@@ -105,11 +181,64 @@ public class Bayes {
 		float cpt=1;
 		String[] mots = tweet.split(" ");
 		HashMap<String, Integer> dico = this.OccurenceDeMotsDansUnTweet(tweet);
+		List<String> dejaUtilise = new ArrayList<String>(); 
 		for(int i = 0;i<mots.length;i++) {
-			cpt=(float) (cpt*(Math.pow(this.probaMot(mots[i], classe), dico.get(mots[i]))));
+			if (!dejaUtilise.contains(mots[i]) && mots[i].length()>2) {
+				cpt=(float) (cpt*(Math.pow(this.probaMot(mots[i], classe), dico.get(mots[i]))));
+				dejaUtilise.add(mots[i]);
+			}
 		}
 		float pclasse = this.probaClasse(classe);
 		return (float) cpt*pclasse;
+	}
+	
+	public float probaTweetByFrequencyBigramme(String tweet, int classe) throws IOException {
+		float cpt=1;
+		String[] mots = tweet.split(" ");
+		HashMap<String, Integer> dico = this.OccurenceDeMotsDansUnTweet(tweet);
+		List<String> dejaUtilise = new ArrayList<String>(); 
+		for(int i = 0;i<mots.length;i++) {
+			if (!dejaUtilise.contains(mots[i]) && mots[i].length()>2) {
+				cpt=(float) (cpt*(Math.pow(this.probaMot(mots[i], classe), dico.get(mots[i]))));
+				dejaUtilise.add(mots[i]);
+			}
+		}
+		HashMap<String, Integer> dico2 = this.OccurenceDeBigrammeDansUnTweet(tweet);
+		Object[] words = this.toBigramme((tweet.split(" "))); 
+		for(int i = 0;i<words.length;i++) {
+			String m = (String) words[i];
+			if (!dejaUtilise.contains(m) && m.length()>2) {
+			cpt=(float) (cpt*(Math.pow(this.probaBigramme(m, classe), dico2.get(m))));
+			dejaUtilise.add(m);
+			}
+		}
+		float pclasse = this.probaClasse(classe);
+		return (float) cpt*pclasse;
+	}
+	
+	private HashMap<String, Integer> OccurenceDeBigrammeDansUnTweet(String t) {
+		Object[] mots = this.toBigramme(t.split(" "));
+		HashMap<String, Integer> dico = new HashMap<String, Integer>();
+		for(int i = 0;i<mots.length;i++) {
+			String m = (String) mots[i];
+			if (dico.containsKey(m)) {
+				dico.put(m, dico.get(mots[i])+1);
+			}
+			else dico.put(m, 1);
+		}
+		return dico;
+	}
+
+	public Object[] toBigramme(String[] mots) {
+		ArrayList<String> bigramme = new ArrayList<String>();
+		int n = mots.length;
+		for (int i = 0; i<n; i++) {
+			if(i!= (n-1)) {
+			bigramme.add((mots[i].trim())+" "+(mots[i+1].trim()));
+			}
+		}
+		Object[] res = bigramme.toArray();
+		return res;
 	}
 	
 	public HashMap<String, Integer> OccurenceDeMotsDansUnTweet(String t){
@@ -180,6 +309,27 @@ public class Bayes {
 		}
 		return -1;
 	}
+	
+	public float resultByFrequencyAndBigramme (String tweet) throws IOException {
+		float pos = this.probaTweetByFrequencyBigramme(tweet, 4);
+		float neu = this.probaTweetByFrequencyBigramme(tweet, 2);
+		float neg = this.probaTweetByFrequencyBigramme(tweet, 0);
+		System.out.print(pos+" ");
+		System.out.print(neu+" ");
+		System.out.print(neg+" ");
+		float res = Math.max(pos, Math.max(neu, neg));
+		if (res==pos) {
+			return 4;
+		}
+		else if(res==neu) {
+			return 2;
+		}
+		else if(res==neg) {
+			return 0;
+		}
+		return -1;
+	}
+
 
 	public static void main(String args[]) throws IOException {
 		Bayes b = new Bayes("requests.csv");
@@ -193,9 +343,11 @@ public class Bayes {
 			//System.out.println(tweet);
 		}
 		reader.close();
-		float res = b.resultByFrequency("je t'aime beaucoup beau gentil super cool");
+		float res = b.resultByFrequencyAndBigramme("trop mauvais trop nul aime pas");
 		//System.out.print(Math.max(6.8060704E-35, 4.2763974E-35)+" f ");
 		System.out.print(res);
+		
+		
 	}
 }
 

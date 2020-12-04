@@ -185,10 +185,11 @@ public class Classification {
 		monDico.put("0", 0);
 		monDico.put("2", 0);
 		monDico.put("4", 0);
+		monDico.put("-1",0);
 		for(CoupleTweetDistance element : proches_voisins) {
 			String s = element.getT();
 			String polarite = s.split(",")[5];
-			monDico.put(polarite.trim(), (monDico.get(polarite)+1));
+			monDico.put(polarite.trim(), (monDico.get(polarite.trim())+1));
 		}
 		System.out.println(monDico.get("0"));
 		int max = 0;
@@ -251,6 +252,7 @@ public class Classification {
 			return t;
 		}
 
+		@SuppressWarnings("unused")
 		public void setT(String t) {
 			this.t = t;
 		}
@@ -259,6 +261,7 @@ public class Classification {
 			return d;
 		}
 
+		@SuppressWarnings("unused")
 		public void setD(int d) {
 			this.d = d;
 		}

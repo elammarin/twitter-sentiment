@@ -59,6 +59,7 @@ public class Interface extends JFrame implements Action {
     static JButton b3;
     static JButton b4;
     static JButton b5;
+    static JButton b6;
   
     static JLabel l;
     
@@ -119,6 +120,7 @@ public class Interface extends JFrame implements Action {
         
         b5 = new JButton("BayesFrequencyEvaluation");
         
+        b6 = new JButton("BayesFrequenceyAndBigrammeEvaluation");
         
   
         try {
@@ -171,6 +173,7 @@ public class Interface extends JFrame implements Action {
             p2.add(b3);
             p2.add(b4);
             p2.add(b5);
+            p2.add(b6);
         	}
         }) ;
         
@@ -304,6 +307,31 @@ public class Interface extends JFrame implements Action {
         		for (Status status : tweets.getTweets()) {
         			String tweetToEvaluate = nettoyage(status.getText());
         			float polarite = b.resultByFrequency(tweetToEvaluate);
+        			int pol = Math.round(polarite);
+					myWriter.write("\""+String.valueOf(status.getId()).replaceAll(",", ".")+"\","+"\""+status.getUser().getScreenName()+"\",\""+tweetToEvaluate+"\",\""+status.getCreatedAt()+"\",\""+t.getText()+"\","+pol+" \n");
+        	}
+        		myWriter.close();}
+        		catch(Exception a) {
+        		a.printStackTrace();	
+        		}
+        		}
+        });
+        
+        b6 = new JButton("BayesEvaluationParFrequenceAvecBigramme");
+        b6.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent e) {
+        		Bayes b = new Bayes("requests.csv");
+    			
+        		File myObj = new File("BayesFrequenceBigrammeClassification.csv");
+        		try{if (!myObj.exists()) {
+        			FileWriter myWriter = new FileWriter("BayesFrequenceBigrammeClassification.csv");
+        	        myWriter.write("Id,User,Text,Date,Request,Polarity \n");
+        	        myWriter.close();
+        	    } 
+        		FileWriter myWriter = new FileWriter("BayesFrequenceBigrammeClassification.csv", true);
+        		for (Status status : tweets.getTweets()) {
+        			String tweetToEvaluate = nettoyage(status.getText());
+        			float polarite = b.resultByFrequencyAndBigramme(tweetToEvaluate);
         			int pol = Math.round(polarite);
 					myWriter.write("\""+String.valueOf(status.getId()).replaceAll(",", ".")+"\","+"\""+status.getUser().getScreenName()+"\",\""+tweetToEvaluate+"\",\""+status.getCreatedAt()+"\",\""+t.getText()+"\","+pol+" \n");
         	}
