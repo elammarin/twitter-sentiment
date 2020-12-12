@@ -208,7 +208,7 @@ public class Classification {
 		Classification c = new Classification();
 		//System.out.println(c.distance("bonjour", "bonjour la famille"));
 		try {
-			System.out.println(c.knn("François LOOS ancien Ministre est élu à l’unanimité Président de Brasseurs de France","requests.csv", 50));
+			System.out.println(c.kWords("peur sympa cool horrible irritation","negative.txt","positive.txt"));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -239,6 +239,53 @@ public class Classification {
 		}
 
 */
+	 public int kWords(String t, String filePathNeg, String filePathPos) throws IOException {
+	        String[] array = t.split(" ");
+	        System.out.println(Arrays.toString(array));
+	        int neg = 0;
+	        int pos = 0;
+	        for (String s : array) {
+	            if (compareFile(filePathNeg, s.trim())) {
+	                neg++;
+	            } else if (compareFile(filePathPos, s.trim())) {
+	                pos++;
+	            } 
+	        }
+	        //System.out.println("Avant changement :" +t.getPolarity()); // verif
+	        if (neg==pos) return 2;
+	        else if (neg> pos) return 0;
+	        else return 4;
+	        //System.out.println("Apres changement :" + t.getPolarity()); // verif
+	        //return -1;
+	    }
+
+	
+	private static boolean compareFile(String filePath, String search) throws IOException {
+		File file = new File(filePath);
+        String[] words;
+        FileReader fr = new FileReader(file);
+        BufferedReader br = new BufferedReader(fr);
+        String str;
+        while((str = br.readLine()) != null)
+        {
+            words = str.split(", ");  //les mots sont séparé par des virgules
+            for (String word : words)
+            {
+                //Cherche le mot
+                if (word.equals(search))
+                {
+                    // On a trouvé le mot dans le fichier
+                    fr.close();
+                    br.close();
+                    return true;
+                }
+            }
+        }
+        fr.close();
+        return false;
+	}
+
+
 	private class CoupleTweetDistance{
 		private String t;
 		private float d;

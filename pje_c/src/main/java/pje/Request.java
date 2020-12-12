@@ -10,8 +10,8 @@ public class Request {
 	
 	public Twitter getTwitterInstance() {
 		ConfigurationBuilder cb = new ConfigurationBuilder();
-		cb.setHttpProxyHost("cache-etu.univ-lille1.fr");
-		cb.setHttpProxyPort(3128);
+		//cb.setHttpProxyHost("cache-etu.univ-lille1.fr");
+		//cb.setHttpProxyPort(3128);
 		cb.setDebugEnabled(true)
 		  .setOAuthConsumerKey("Mf4LNKGlV3ZxJSr7m7yeZ5BmP")
 		  .setOAuthConsumerSecret("IBkXvVM3E3YYBO833TyBYQDQnA5hcoJzDLrpQLFMUfxwGxBEJx")
@@ -43,7 +43,7 @@ public class Request {
 	public QueryResult run(String rqst) throws Exception {
 		Twitter twitter = this.getTwitterInstance();
 		Query query = new Query(rqst);
-		//query.setCount(100);
+		query.setCount(20);
 	    QueryResult result;
 	    result = twitter.search(query);
 	    //for (Status status : result.getTweets()) {

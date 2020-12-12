@@ -50,6 +50,10 @@ public class Interface extends JFrame implements Action {
 
 	public int remaining;
 	
+	int positive;
+	int neutral;
+	int negative;
+	
     static JTextField t; 
   
     static JFrame f; 
@@ -60,6 +64,8 @@ public class Interface extends JFrame implements Action {
     static JButton b4;
     static JButton b5;
     static JButton b6;
+    static JButton b7;
+    static JButton b8;
   
     static JLabel l;
     
@@ -75,6 +81,9 @@ public class Interface extends JFrame implements Action {
 
     public Interface()
     { 		
+    	this.positive = 0;
+    	this.neutral=0;
+    	this.negative = 0;
     	this.p=new JPanel(); 
     	this.p2=new JPanel(); 
     	p2.setLayout(new BoxLayout(p2, BoxLayout.PAGE_AXIS));
@@ -121,6 +130,8 @@ public class Interface extends JFrame implements Action {
         b5 = new JButton("BayesFrequencyEvaluation");
         
         b6 = new JButton("BayesFrequenceyAndBigrammeEvaluation");
+        
+        b8 = new JButton("ClassificationParMotsClés");
         
   
         try {
@@ -174,6 +185,8 @@ public class Interface extends JFrame implements Action {
             p2.add(b4);
             p2.add(b5);
             p2.add(b6);
+            p2.add(b8);
+            p2.add(b7);
         	}
         }) ;
         
@@ -226,7 +239,7 @@ public class Interface extends JFrame implements Action {
 					}
         			if (!dupli) {
 						try {
-							myWriter.write("\""+status.getId()+"\","+"\""+status.getUser().getScreenName()+"\",\""+nettoyage(status.getText())+"\",\""+status.getCreatedAt()+"\",\""+research+"\","+val.get(index)+" \n");
+							myWriter.write("\""+Long.toString(status.getId()).replaceAll(",", ".")+"\","+"\""+status.getUser().getScreenName()+"\",\""+nettoyage(status.getText())+"\",\""+status.getCreatedAt()+"\",\""+research+"\","+val.get(index)+" \n");
 						} catch (IOException e1) {
 							// TODO Auto-generated catch block
 							e1.printStackTrace();
@@ -247,6 +260,9 @@ public class Interface extends JFrame implements Action {
         b3 = new JButton("knnEvaluation");
         b3.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent e) {
+        		in.negative =0;
+        		in.positive = 0;
+        		in.neutral = 0;
         		File myObj = new File("knnClassification.csv");
         		try{if (!myObj.exists()) {
         			FileWriter myWriter = new FileWriter("knnClassification.csv");
@@ -257,8 +273,17 @@ public class Interface extends JFrame implements Action {
         		for (Status status : tweets.getTweets()) {
         			String tweetToEvaluate = nettoyage(status.getText());
         			Classification c = new Classification();
-        			int polarite = c.knn(tweetToEvaluate, "requests.csv", 10);
-					myWriter.write("\""+status.getId()+"\","+"\""+status.getUser().getScreenName()+"\",\""+tweetToEvaluate+"\",\""+status.getCreatedAt()+"\",\""+t.getText()+"\","+polarite+" \n");
+        			int polarite = c.knn(tweetToEvaluate, "requests_2014.csv", 10);
+					myWriter.write("\""+Long.toString(status.getId()).replaceAll(",", ".")+"\","+"\""+status.getUser().getScreenName()+"\",\""+tweetToEvaluate+"\",\""+status.getCreatedAt()+"\",\""+t.getText()+"\","+polarite+" \n");
+					if (polarite == 0) {
+						in.negative+=1;
+					}
+					if (polarite == 2) {
+						in.neutral+=1;
+					}
+					if (polarite == 4) {
+						in.positive +=1;
+					}
         	}
         		myWriter.close();}
         		catch(Exception a) {
@@ -270,6 +295,9 @@ public class Interface extends JFrame implements Action {
         b4 = new JButton("BayesEvaluation");
         b4.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent e) {
+        		in.negative =0;
+        		in.positive = 0;
+        		in.neutral = 0;
         		Bayes b = new Bayes("requests.csv");
     			
         		File myObj = new File("BayesClassification.csv");
@@ -284,6 +312,15 @@ public class Interface extends JFrame implements Action {
         			float polarite = b.result(tweetToEvaluate);
         			int pol = Math.round(polarite);
 					myWriter.write("\""+String.valueOf(status.getId()).replaceAll(",", ".")+"\","+"\""+status.getUser().getScreenName()+"\",\""+tweetToEvaluate+"\",\""+status.getCreatedAt()+"\",\""+t.getText()+"\","+pol+" \n");
+					if (pol == 0) {
+						in.negative+=1;
+					}
+					if (pol == 2) {
+						in.neutral+=1;
+					}
+					if (pol == 4) {
+						in.positive +=1;
+					}
         	}
         		myWriter.close();}
         		catch(Exception a) {
@@ -296,7 +333,9 @@ public class Interface extends JFrame implements Action {
         b5.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent e) {
         		Bayes b = new Bayes("requests.csv");
-    			
+        		in.negative =0;
+        		in.positive = 0;
+        		in.neutral = 0;
         		File myObj = new File("BayesFrequenceClassification.csv");
         		try{if (!myObj.exists()) {
         			FileWriter myWriter = new FileWriter("BayesFrequenceClassification.csv");
@@ -309,6 +348,15 @@ public class Interface extends JFrame implements Action {
         			float polarite = b.resultByFrequency(tweetToEvaluate);
         			int pol = Math.round(polarite);
 					myWriter.write("\""+String.valueOf(status.getId()).replaceAll(",", ".")+"\","+"\""+status.getUser().getScreenName()+"\",\""+tweetToEvaluate+"\",\""+status.getCreatedAt()+"\",\""+t.getText()+"\","+pol+" \n");
+					if (pol == 0) {
+						in.negative+=1;
+					}
+					if (pol == 2) {
+						in.neutral+=1;
+					}
+					if (pol == 4) {
+						in.positive +=1;}
+					
         	}
         		myWriter.close();}
         		catch(Exception a) {
@@ -321,7 +369,9 @@ public class Interface extends JFrame implements Action {
         b6.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent e) {
         		Bayes b = new Bayes("requests.csv");
-    			
+        		in.negative =0;
+        		in.positive = 0;
+        		in.neutral = 0;
         		File myObj = new File("BayesFrequenceBigrammeClassification.csv");
         		try{if (!myObj.exists()) {
         			FileWriter myWriter = new FileWriter("BayesFrequenceBigrammeClassification.csv");
@@ -334,12 +384,64 @@ public class Interface extends JFrame implements Action {
         			float polarite = b.resultByFrequencyAndBigramme(tweetToEvaluate);
         			int pol = Math.round(polarite);
 					myWriter.write("\""+String.valueOf(status.getId()).replaceAll(",", ".")+"\","+"\""+status.getUser().getScreenName()+"\",\""+tweetToEvaluate+"\",\""+status.getCreatedAt()+"\",\""+t.getText()+"\","+pol+" \n");
+					if (pol == 0) {
+						in.negative+=1;
+					}
+					if (pol == 2) {
+						in.neutral+=1;
+					}
+					if (pol == 4) {
+						in.positive +=1;}
         	}
         		myWriter.close();}
         		catch(Exception a) {
         		a.printStackTrace();	
         		}
         		}
+        });
+        
+        b8 = new JButton("EvaluationParMotClés");
+        b8.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent e) {
+        		Classification c = new Classification();
+        		in.negative =0;
+        		in.positive = 0;
+        		in.neutral = 0;
+        		File myObj = new File("ClassifiactionkWords.csv");
+        		try{if (!myObj.exists()) {
+        			FileWriter myWriter = new FileWriter("ClassifiactionkWords.csv");
+        	        myWriter.write("Id,User,Text,Date,Request,Polarity \n");
+        	        myWriter.close();
+        	    } 
+        		FileWriter myWriter = new FileWriter("ClassifiactionkWords.csv", true);
+        		for (Status status : tweets.getTweets()) {
+        			String tweetToEvaluate = nettoyage(status.getText());
+        			float polarite = c.kWords(tweetToEvaluate, "negative.txt", "positive.txt");
+        			int pol = Math.round(polarite);
+					myWriter.write("\""+String.valueOf(status.getId()).replaceAll(",", ".")+"\","+"\""+status.getUser().getScreenName()+"\",\""+tweetToEvaluate+"\",\""+status.getCreatedAt()+"\",\""+t.getText()+"\","+pol+" \n");
+					if (pol == 0) {
+						in.negative+=1;
+					}
+					if (pol == 2) {
+						in.neutral+=1;
+					}
+					if (pol == 4) {
+						in.positive +=1;}
+        	}
+        		myWriter.close();}
+        		catch(Exception a) {
+        		a.printStackTrace();	
+        		}
+        		}
+        });
+        
+        b7 = new JButton("Graphique");
+        b7.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent e) {
+        		PieChart pie = new PieChart("Comparaison", "Quel est le pourcentage de tweet de chaque polarité?", in.negative*5, in.neutral*5, in.positive*5);
+    	        pie.pack();
+    	        pie.setVisible(true);
+        	}
         });
   
         // create a object of JTextField with 16 columns 
@@ -393,6 +495,7 @@ public class Interface extends JFrame implements Action {
 
 	protected static boolean dupli(long id) throws FileNotFoundException {
 		String i = Long.toString(id);
+		i.replaceAll(",", ".");
 		File myObj = new File("requests.csv");
 	    @SuppressWarnings("resource")
 		Scanner myReader = new Scanner(myObj);
