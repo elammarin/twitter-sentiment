@@ -6,7 +6,13 @@ import java.util.*;
 
 public class Classification {
 
-        public float distance(String t1,String t2) {
+        private String file;
+
+        public Classification(String base) {
+        	this.file=base;
+		}
+
+		public float distance(String t1,String t2) {
                 float[] param = mots(t1,t2);
                 return ((( param[2]+param[1])-  param[0])/(param[2]+param[1]));
         }
@@ -29,102 +35,7 @@ public class Classification {
                 result[2] = mots2.length;
                 return result;
         }
-	/*
-	public int knn(String tweet, TweetSet base ,int nb_voisins) throws IOException {
-		int nb = nb_voisins;
-		List< Tweet > tweets = new ArrayList< Tweet >( base.tweets() );
-		DTCouple[] voisins = new DTCouple[ nb ];
-		int maxIndex = 0;
 
-		for ( int i = 0; i < nb; i++ ) {
-			Tweet msg = tweets.get( i );
-			voisins[ i ] = new DTCouple( this.distance( tweet, msg.getMsg() ), msg );
-			if ( voisins[ i ].getDistance() > voisins[ maxIndex ].getDistance() ) {
-				maxIndex = i;
-			}
-		}
-
-		for ( int i = nb; i < tweets.size(); i++ ) {
-			Tweet msg = tweets.get( i );
-			float distance = this.distance( tweet, msg.getMsg() );
-
-			if ( distance < voisins[ maxIndex ].getDistance() ) {
-				voisins[ maxIndex ] = new DTCouple( distance, msg );
-
-				// Search the new maxIndex
-				for ( int k = 0; k < voisins.length; k++ ) {
-					if ( voisins[ k ].getDistance() > voisins[ maxIndex ].getDistance() ) {
-						maxIndex = k;
-					}
-				}
-			}
-		}
-
-		int cptPositive = 0;
-		int cptNegative = 0;
-		int cptNeutral = 0;
-
-		for ( int i = 0; i < nb; i++ ) {
-			int feeling = voisins[ i ].getTweet().getFeeling();
-
-			if ( feeling == 4 ) {
-				cptPositive++;
-			} else if ( feeling == 0 ) {
-				cptNegative++;
-			} else {
-				cptNeutral++;
-			}
-		}
-
-		if ( ( cptNeutral >= cptPositive ) && ( cptNeutral >= cptNegative ) ) {
-			return 2;
-		} else if ( cptPositive > cptNegative ) {
-			return 4;
-		} else {
-			return 0;
-		}
-
-	}
-        
-        public int knn(String tweet, String base ,int nb_voisins) throws IOException {
-    		//File tweets = new File("requests.csv");
-    		FileReader myReader = new FileReader(base);
-    		BufferedReader reader = new BufferedReader(myReader);
-    		List<String> voisins = new ArrayList<String>(); 
-    		List<String> proches_voisins = new ArrayList<String>(); 
-    		String thisLine = null;
-    		String line = null;
-    		int cpt = -1;
-    		reader.readLine();
-    		while((line = reader.readLine()) != null) {
-    			voisins.add(line);
-    			cpt++;
-    		}
-    		List<Float> distances = new ArrayList<Float>(); 
-    		for(int i=0;i<nb_voisins;i++) {
-    			if((thisLine = reader.readLine()) != null) {
-    				proches_voisins.add(i,thisLine);
-    				distances.add(distance(tweet,proches_voisins.get(i).split(",")[2]));
-    			}
-    		}
-    		
-    		for (int i=nb_voisins+1; i<cpt;i++) {
-        		System.out.println(voisins.get(i));
-    			float d = distance(tweet,(voisins.get(i).split(","))[2]);
-    			//boolean condition = distances.stream().anyMatch( num ->  d < num);
-    			for(String tw : proches_voisins) {
-    				if (d<distance(tweet,tw.split(",")[2])) {
-    					proches_voisins.add(voisins.get(i));
-    					proches_voisins.remove(tw);
-    					voisins.remove(voisins.get(i));
-    					voisins.add(tw);
-    				}
-    			}
-    		}
-    		reader.close();
-    		
-    		return vote(proches_voisins);
-    	}*/
         
         public int knn(String tweet, String base ,int nb_voisins) throws IOException {
     		//File tweets = new File("requests.csv");
@@ -144,11 +55,12 @@ public class Classification {
     			boolean t = inferieurAuneDistance(distance, proches_voisins);
     			if (t) {
     				//proches_voisins.remove(t);
-    				System.out.println("je remplace");
+    				//System.out.println("je remplace");
     				proches_voisins.add(new CoupleTweetDistance(line, distance));
     			}
     			else {    				
-    				System.out.println("je ne remplace pas");}
+    				//System.out.println("je ne remplace pas");
+    				}
     			}
     		
     		reader.close();
@@ -180,7 +92,7 @@ public class Classification {
 		}
 
 	private int vote(List<CoupleTweetDistance> proches_voisins) {
-		System.out.println("size"+proches_voisins.size());
+		//System.out.println("size"+proches_voisins.size());
 		Map<String,Integer> monDico = new HashMap<String,Integer>();
 		monDico.put("0", 0);
 		monDico.put("2", 0);
@@ -191,7 +103,7 @@ public class Classification {
 			String polarite = s.split(",")[5];
 			monDico.put(polarite.trim(), (monDico.get(polarite.trim())+1));
 		}
-		System.out.println(monDico.get("0"));
+		//System.out.println(monDico.get("0"));
 		int max = 0;
 		
 		if (monDico.get("2")>monDico.get("0") && monDico.get("2")>monDico.get("4")) {
@@ -204,17 +116,76 @@ public class Classification {
 		
 	}
 	
-	public static void main(String args[]) {
-		Classification c = new Classification();
-		//System.out.println(c.distance("bonjour", "bonjour la famille"));
-		try {
-			System.out.println(c.kWords("peur sympa cool horrible irritation","negative.txt","positive.txt"));
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	public static void main(String args[]) throws IOException {
+		Classification c = new Classification("requests.csv");
+		System.out.println(c.kWords("peur sympa cool horrible irritation","negative.txt","positive.txt"));
+		System.out.println(c.CorrectRateKeywords());
+		System.out.println(c.CorrectRateKnn());
 	}
 	
+	private float CorrectRateKeywords() throws IOException {
+		int nblines = this.getNbLinesFile();
+		int deuxTiers = (nblines/3)*2;
+		int equal = 0;
+		int total = 0;
+		int start = 0;
+		FileReader f = new FileReader(this.file);
+		BufferedReader b = new BufferedReader(f);
+		String line = null;
+		while ((line = b.readLine())!=null ) {
+			if (start>= deuxTiers) {
+			String tweet =this.getTweet(line);
+			int pol = this.getClass(line);
+			int pol2 = (int) this.kWords(tweet, "negative.txt", "positive.txt");
+			if (pol == pol2) equal++;
+			total++;}
+			start++;
+		}
+		b.close();
+		return (float) equal/total;
+	}
+
+	private float CorrectRateKnn() throws IOException {
+		int nblines = this.getNbLinesFile();
+		int deuxTiers = (nblines/3)*2;
+		int equal = 0;
+		int total = 0;
+		int start = 0;
+		FileReader f = new FileReader(this.file);
+		BufferedReader b = new BufferedReader(f);
+		String line = null;
+		while ((line = b.readLine())!=null ) {
+			if (start>= deuxTiers) {
+				String tweet =this.getTweet(line);
+				int pol = this.getClass(line);
+				int pol2 = (int) this.knn(tweet, this.file, 27);
+				if (pol == pol2) equal++;
+				total++;
+			}
+			start++;
+		}
+		b.close();
+		return (float) equal/total;
+	}
+
+	public int getNbLinesFile() throws IOException {
+		int res = 0;
+		FileReader f = new FileReader(this.file);
+		BufferedReader b = new BufferedReader(f);
+		while(b.readLine()!= null) res+=1;
+		return res-1;
+	}
+	
+	public String getTweet(String s) {
+		String res= s.split(",")[2];
+		return (String) res.substring(2, res.length()-2).trim();
+	}
+	
+	public int getClass(String s) {
+		//System.out.println(s.split(",")[5]);
+		return Integer.parseInt(s.split(",")[5].substring(0, 1)); 
+	}
+
 	/*
 	// Class representing a couple : ( Distance, Tweet )
 		private class DTCouple {
@@ -241,7 +212,7 @@ public class Classification {
 */
 	 public int kWords(String t, String filePathNeg, String filePathPos) throws IOException {
 	        String[] array = t.split(" ");
-	        System.out.println(Arrays.toString(array));
+	        //System.out.println(Arrays.toString(array));
 	        int neg = 0;
 	        int pos = 0;
 	        for (String s : array) {
@@ -258,7 +229,6 @@ public class Classification {
 	        //System.out.println("Apres changement :" + t.getPolarity()); // verif
 	        //return -1;
 	    }
-
 	
 	private static boolean compareFile(String filePath, String search) throws IOException {
 		File file = new File(filePath);
@@ -268,7 +238,7 @@ public class Classification {
         String str;
         while((str = br.readLine()) != null)
         {
-            words = str.split(", ");  //les mots sont séparé par des virgules
+            words = str.split(", ");  //les mots sont séparés par des virgules
             for (String word : words)
             {
                 //Cherche le mot
@@ -312,8 +282,6 @@ public class Classification {
 		public void setD(int d) {
 			this.d = d;
 		}
-		
-		
 		
 	}
 	

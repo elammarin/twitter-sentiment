@@ -107,7 +107,7 @@ public class Interface extends JFrame implements Action {
     @SuppressWarnings("deprecation")
 	public static void main(String[] args) { 
     	
-    	Interface in = new Interface();
+    	final Interface in = new Interface();
     	
     	in.enable();
    
@@ -272,7 +272,7 @@ public class Interface extends JFrame implements Action {
         		FileWriter myWriter = new FileWriter("knnClassification.csv", true);
         		for (Status status : tweets.getTweets()) {
         			String tweetToEvaluate = nettoyage(status.getText());
-        			Classification c = new Classification();
+        			Classification c = new Classification("requests_csv");
         			int polarite = c.knn(tweetToEvaluate, "requests_2014.csv", 10);
 					myWriter.write("\""+Long.toString(status.getId()).replaceAll(",", ".")+"\","+"\""+status.getUser().getScreenName()+"\",\""+tweetToEvaluate+"\",\""+status.getCreatedAt()+"\",\""+t.getText()+"\","+polarite+" \n");
 					if (polarite == 0) {
@@ -381,7 +381,7 @@ public class Interface extends JFrame implements Action {
         		FileWriter myWriter = new FileWriter("BayesFrequenceBigrammeClassification.csv", true);
         		for (Status status : tweets.getTweets()) {
         			String tweetToEvaluate = nettoyage(status.getText());
-        			float polarite = b.resultByFrequencyAndBigramme(tweetToEvaluate);
+        			float polarite = b.resultByFrequencyBigramme(tweetToEvaluate);
         			int pol = Math.round(polarite);
 					myWriter.write("\""+String.valueOf(status.getId()).replaceAll(",", ".")+"\","+"\""+status.getUser().getScreenName()+"\",\""+tweetToEvaluate+"\",\""+status.getCreatedAt()+"\",\""+t.getText()+"\","+pol+" \n");
 					if (pol == 0) {
@@ -403,13 +403,13 @@ public class Interface extends JFrame implements Action {
         b8 = new JButton("EvaluationParMotClés");
         b8.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent e) {
-        		Classification c = new Classification();
+        		Classification c = new Classification("requests_csv");
         		in.negative =0;
         		in.positive = 0;
         		in.neutral = 0;
-        		File myObj = new File("ClassifiactionkWords.csv");
+        		File myObj = new File("ClassificationkWords.csv");
         		try{if (!myObj.exists()) {
-        			FileWriter myWriter = new FileWriter("ClassifiactionkWords.csv");
+        			FileWriter myWriter = new FileWriter("ClassificationkWords.csv");
         	        myWriter.write("Id,User,Text,Date,Request,Polarity \n");
         	        myWriter.close();
         	    } 
