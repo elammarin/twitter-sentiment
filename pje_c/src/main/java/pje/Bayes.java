@@ -42,7 +42,7 @@ public class Bayes {
 	 */
 	public String getTweet(String s) {
 		String res= s.split(",")[2];
-		return (String) res.substring(2, res.length()-2).trim();
+		return res;
 	}
 	
 	/**
