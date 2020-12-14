@@ -38,7 +38,7 @@ public class Bayes {
 	
 	/**
 	 * @param s the tweet's content
-	 * @return
+	 * @return the tweet's content
 	 */
 	public String getTweet(String s) {
 		String res= s.split(",")[2];
@@ -47,7 +47,7 @@ public class Bayes {
 	
 	/**
 	 * @param s the tweet's class
-	 * @return
+	 * @return the tweet's class
 	 */
 	public int getClass(String s) {
 		//System.out.println(s.split(",")[5]);

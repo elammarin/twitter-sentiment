@@ -64,7 +64,7 @@ public class PieChart extends JFrame {
     /**
      * @param dataset the dataset to create the chart
      * @param title the title of the chart
-     * @return
+     * @return the chart
      */
     private JFreeChart createChart(PieDataset dataset, String title) {
         

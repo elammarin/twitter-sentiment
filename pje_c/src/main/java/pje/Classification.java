@@ -222,7 +222,7 @@ public class Classification {
 	
 	/**
 	 * @param s the tweet's content
-	 * @return
+	 * @return the tweet's content
 	 */
 	public String getTweet(String s) {
 		String res= s.split(",")[2];
@@ -231,7 +231,7 @@ public class Classification {
 	
 	/**
 	 * @param s the tweet's class
-	 * @return
+	 * @return the tweet's class
 	 */
 	public int getClass(String s) {
 		//System.out.println(s.split(",")[5]);
@@ -269,7 +269,7 @@ public class Classification {
 	/**
 	 * @param filePath the file where we search the word
 	 * @param search the word we are looking for
-	 * @return
+	 * @return true if the word is in the file, false else
 	 * @throws IOException
 	 */
 	private static boolean compareFile(String filePath, String search) throws IOException {
