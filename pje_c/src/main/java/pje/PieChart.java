@@ -10,11 +10,21 @@ import org.jfree.data.general.DefaultPieDataset;
 import org.jfree.data.general.PieDataset;
 import org.jfree.util.Rotation;
 
-
+/**
+ * @author Arthur Assima & Nordine El Ammari
+ * Pie Chart for the results
+ */
 public class PieChart extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * @param applicationTitle Title of the app
+	 * @param chartTitle Title of the chart
+	 * @param negative Number of negative
+	 * @param neutral Number of neutral
+	 * @param positive Number of positive
+	 */
 	public PieChart(String applicationTitle, String chartTitle, int negative, int neutral, int positive) {
         super(applicationTitle);
         // This will create the dataset 
@@ -33,6 +43,12 @@ public class PieChart extends JFrame {
     /**
      * Creates a sample dataset 
      */
+    /**
+	 * @param negative Number of negative
+	 * @param neutral Number of neutral
+	 * @param positive Number of positive
+     * @return the pie dataset
+     */
     private  PieDataset createDataset(int negative, int neutral, int positive) {
         DefaultPieDataset result = new DefaultPieDataset();
         result.setValue("Négatif", negative);
@@ -44,6 +60,11 @@ public class PieChart extends JFrame {
     
     /**
      * Creates a chart
+     */
+    /**
+     * @param dataset the dataset to create the chart
+     * @param title the title of the chart
+     * @return
      */
     private JFreeChart createChart(PieDataset dataset, String title) {
         

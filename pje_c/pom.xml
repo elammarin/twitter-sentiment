@@ -28,13 +28,47 @@
     <dependency>
            <groupId>org.twitter4j</groupId>
            <artifactId>twitter4j-core</artifactId>
-           <version>[4.0,)</version>
+           <version>4.0.7</version>
+       </dependency>
+	<dependency>
+           <groupId>org.twitter4j</groupId>
+           <artifactId>twitter4j-async</artifactId>
+           <version>4.0.7</version>
+       </dependency>
+	<dependency>
+           <groupId>org.twitter4j</groupId>
+           <artifactId>twitter4j-stream</artifactId>
+           <version>4.0.7</version>
+       </dependency>
+	<dependency>
+           <groupId>jfree</groupId>
+           <artifactId>jfreechart</artifactId>
+           <version>1.0.13</version>
+       </dependency>
+	<dependency>
+           <groupId>jfree</groupId>
+           <artifactId>jcommon</artifactId>
+           <version>1.0.16</version>
        </dependency>
   </dependencies>
 
   <build>
     <pluginManagement><!-- lock down plugins versions to avoid using Maven defaults (may be moved to parent pom) -->
       <plugins>
+        <plugin>
+			      <!-- Build an executable JAR -->
+			<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+							          <version>3.1.0</version>	
+ <configuration>
+	<archive>
+	  <manifest>
+				<addClasspath>true</addClasspath>
+				<classpathPrefix>lib/</classpathPrefix>
+			 <mainClass>pje.Interface</mainClass>
+	</manifest>
+	</archive>      
+</configuration>																										          </plugin>
         <!-- clean lifecycle, see https://maven.apache.org/ref/current/maven-core/lifecycles.html#clean_Lifecycle -->
         <plugin>
           <artifactId>maven-clean-plugin</artifactId>
@@ -54,10 +88,6 @@
           <version>2.22.1</version>
         </plugin>
         <plugin>
-          <artifactId>maven-jar-plugin</artifactId>
-          <version>3.0.2</version>
-        </plugin>
-        <plugin>
           <artifactId>maven-install-plugin</artifactId>
           <version>2.5.2</version>
         </plugin>
@@ -74,6 +104,15 @@
           <artifactId>maven-project-info-reports-plugin</artifactId>
           <version>3.0.0</version>
         </plugin>
+	<plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>3.2.0</version>
+        <configuration>
+          <show>private</show>
+          <nohelp>true</nohelp>
+        </configuration>
+      </plugin>
       </plugins>
     </pluginManagement>
   </build>

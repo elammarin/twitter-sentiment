@@ -5,9 +5,14 @@ import java.util.Map;
 import twitter4j.*;
 import twitter4j.conf.ConfigurationBuilder;
 
-
+/**
+ * @author Arthur Assima & Nordine El Ammari
+ */
 public class Request {
 	
+	/**
+	 * @return the twitter instance
+	 */
 	public Twitter getTwitterInstance() {
 		ConfigurationBuilder cb = new ConfigurationBuilder();
 		//cb.setHttpProxyHost("cache-etu.univ-lille1.fr");
@@ -22,17 +27,16 @@ public class Request {
 		return twitter;
 	}
 	
+	/**
+	 * @return the number of available requests left
+	 * @throws TwitterException
+	 */
 	public int getRemainingRequest() throws TwitterException {
 		int result = 0; 
 		Twitter twitter = this.getTwitterInstance();
 		 Map<String ,RateLimitStatus> rateLimitStatus = twitter.getRateLimitStatus();
 		 for (String endpoint : rateLimitStatus.keySet()) {
 		   RateLimitStatus status = rateLimitStatus.get(endpoint);
-		   //System.out.println("Endpoint: " + endpoint);
-		   //System.out.println(" Limit: " + status.getLimit());
-		   //System.out.println(" Remaining: " + status.getRemaining());
-		   //System.out.println(" ResetTimeInSeconds: " + status.getResetTimeInSeconds());
-		   //System.out.println(" SecondsUntilReset: " + status.getSecondsUntilReset());
 		   if (endpoint.contains("/search/tweets")) {
 			   	result = (status.getRemaining());
 		   }
@@ -40,15 +44,18 @@ public class Request {
 		 return result;
 	}
 		
+	/**
+	 * @param rqst the request
+	 * @return the twitter search
+	 * @throws Exception
+	 */
 	public QueryResult run(String rqst) throws Exception {
 		Twitter twitter = this.getTwitterInstance();
 		Query query = new Query(rqst);
 		query.setCount(20);
 	    QueryResult result;
 	    result = twitter.search(query);
-	    //for (Status status : result.getTweets()) {
-	    //    System.out.println("@" + status.getUser().getScreenName() + ":" + status.getText()); 
-    	//}
+
 	    return result;
 			
 	}

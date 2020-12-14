@@ -3,20 +3,36 @@ package pje;
 import java.io.*;
 import java.util.*;
 
-
+/**
+ * @author Arthur Assima & Nordine El Ammari
+ * KNN & Keywords classification
+ */
 public class Classification {
 
         private String file;
 
+        /**
+         * @param base the learning base
+         */
         public Classification(String base) {
         	this.file=base;
 		}
 
+		/**
+		 * @param t1 a tweet
+		 * @param t2 an other tweet
+		 * @return the distance between t1 and t2
+		 */
 		public float distance(String t1,String t2) {
                 float[] param = mots(t1,t2);
                 return ((( param[2]+param[1])-  param[0])/(param[2]+param[1]));
         }
 
+        /**
+         * @param t1 a tweet	
+         * @param t2 an other tweet
+         * @return the number of words in common and the tweets' length
+         */
         public float[] mots(String t1, String t2) {
                 String[] mots1=t1.split(" ");
                 String[] mots2=t2.split(" ");
@@ -37,6 +53,13 @@ public class Classification {
         }
 
         
+        /**
+         * @param tweet the tweet to classify
+         * @param base the learning base
+         * @param nb_voisins the number of neighbor to use
+         * @return the tweet's class
+         * @throws IOException
+         */
         public int knn(String tweet, String base ,int nb_voisins) throws IOException {
     		//File tweets = new File("requests.csv");
     		FileReader myReader = new FileReader(base);
@@ -69,6 +92,11 @@ public class Classification {
     	}
 
 
+	/**
+	 * @param distance the distance we want between the tweet and his neighbors
+	 * @param proches_voisins the tweet's nearest neighbors 
+	 * @return true if every neighbor is lower than distance false else 
+	 */
 	private boolean inferieurAuneDistance(float distance, List<CoupleTweetDistance> proches_voisins) {	
 		int cpt = 0;
 		int minindex = -1;
@@ -91,6 +119,10 @@ public class Classification {
 			}
 		}
 
+	/**
+	 * @param proches_voisins the list of near neighbors 
+	 * @return the class of the tweet calculated with the knn classifier
+	 */
 	private int vote(List<CoupleTweetDistance> proches_voisins) {
 		//System.out.println("size"+proches_voisins.size());
 		Map<String,Integer> monDico = new HashMap<String,Integer>();
@@ -123,6 +155,10 @@ public class Classification {
 		System.out.println(c.CorrectRateKnn());
 	}
 	
+	/**
+	 * @return the rate of similarity between the learning base and the keywords classification
+	 * @throws IOException
+	 */
 	private float CorrectRateKeywords() throws IOException {
 		int nblines = this.getNbLinesFile();
 		int deuxTiers = (nblines/3)*2;
@@ -145,6 +181,10 @@ public class Classification {
 		return (float) equal/total;
 	}
 
+	/**
+	 * @return the rate of similarity between the learning base and the knn classification
+	 * @throws IOException
+	 */
 	private float CorrectRateKnn() throws IOException {
 		int nblines = this.getNbLinesFile();
 		int deuxTiers = (nblines/3)*2;
@@ -168,6 +208,10 @@ public class Classification {
 		return (float) equal/total;
 	}
 
+	/**
+	 * @return the number of lines in the source file
+	 * @throws IOException
+	 */
 	public int getNbLinesFile() throws IOException {
 		int res = 0;
 		FileReader f = new FileReader(this.file);
@@ -176,41 +220,33 @@ public class Classification {
 		return res-1;
 	}
 	
+	/**
+	 * @param s the tweet's content
+	 * @return
+	 */
 	public String getTweet(String s) {
 		String res= s.split(",")[2];
 		return (String) res.substring(2, res.length()-2).trim();
 	}
 	
+	/**
+	 * @param s the tweet's class
+	 * @return
+	 */
 	public int getClass(String s) {
 		//System.out.println(s.split(",")[5]);
 		return Integer.parseInt(s.split(",")[5].substring(0, 1)); 
 	}
 
-	/*
-	// Class representing a couple : ( Distance, Tweet )
-		private class DTCouple {
 
-			private float distance;
-
-			private Tweet tweet;
-
-			public DTCouple ( float distance, Tweet tweet ) {
-				this.distance = distance;
-				this.tweet = tweet;
-			}
-
-			public float getDistance () {
-				return this.distance;
-			}
-
-			public Tweet getTweet () {
-				return this.tweet;
-			}
-
-		}
-
-*/
-	 public int kWords(String t, String filePathNeg, String filePathPos) throws IOException {
+	 /**
+	 * @param t
+	 * @param filePathNeg file with negative keywords
+	 * @param filePathPos file with positive keywords
+	 * @return the class of the tweet calculated with the keywords classifier
+	 * @throws IOException
+	 */
+	public int kWords(String t, String filePathNeg, String filePathPos) throws IOException {
 	        String[] array = t.split(" ");
 	        //System.out.println(Arrays.toString(array));
 	        int neg = 0;
@@ -230,6 +266,12 @@ public class Classification {
 	        //return -1;
 	    }
 	
+	/**
+	 * @param filePath the file where we search the word
+	 * @param search the word we are looking for
+	 * @return
+	 * @throws IOException
+	 */
 	private static boolean compareFile(String filePath, String search) throws IOException {
 		File file = new File(filePath);
         String[] words;
@@ -260,24 +302,40 @@ public class Classification {
 		private String t;
 		private float d;
 		
+		/**
+		 * @param t the tweet
+		 * @param d the distance
+		 */
 		public CoupleTweetDistance(String t, float d) {
 			this.t = t;
 			this.d = d;
 		}
 
+		/**
+		 * @return gets t
+		 */
 		public String getT() {
 			return t;
 		}
 
+		/**
+		 * @param t sets t
+		 */
 		@SuppressWarnings("unused")
 		public void setT(String t) {
 			this.t = t;
 		}
 
+		/**
+		 * @return d
+		 */
 		public float getD() {
 			return d;
 		}
 
+		/**
+		 * @param d sets d
+		 */
 		@SuppressWarnings("unused")
 		public void setD(int d) {
 			this.d = d;
